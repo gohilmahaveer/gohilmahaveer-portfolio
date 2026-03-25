@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, createContext, useContext } from "react";
 import {
-  Mail, Phone, MapPin, Linkedin, ChevronDown, Briefcase, GraduationCap,
+  Mail, Phone, MapPin, ChevronDown, Briefcase, GraduationCap,
   Award, Code2, Zap, Shield, Database, Cloud, GitBranch, Server,
   Cpu, Layers, Box, ExternalLink, Star, TrendingUp, CheckCircle2,
   ArrowUp, Menu, X, Globe, Clock, Users, BarChart3, Sun, Moon, Rocket,
@@ -693,7 +693,7 @@ function Contact() {
   const items = [
     { icon: Mail, label: "Email", value: "gohilmahaveer@gmail.com", href: "mailto:gohilmahaveer@gmail.com" },
     { icon: Phone, label: "Phone", value: "+91-8000545662", href: "tel:+918000545662" },
-    { icon: Linkedin, label: "LinkedIn", value: "mahaveersinh-gohil", href: "https://linkedin.com/in/mahaveersinh-gohil" },
+    { icon: Globe, label: "LinkedIn", value: "mahaveersinh-gohil", href: "https://linkedin.com/in/mahaveersinh-gohil" },
     { icon: MapPin, label: "Location", value: "Rajkot, Gujarat, India", href: "#" },
   ];
   return (
