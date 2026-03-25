@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/gohilmahaveer-portfolio/static/css/main.e6c13ad2.css",
+    "main.js": "/gohilmahaveer-portfolio/static/js/main.75b44464.js",
+    "static/js/453.d46e9a51.chunk.js": "/gohilmahaveer-portfolio/static/js/453.d46e9a51.chunk.js",
+    "index.html": "/gohilmahaveer-portfolio/index.html",
+    "main.e6c13ad2.css.map": "/gohilmahaveer-portfolio/static/css/main.e6c13ad2.css.map",
+    "main.75b44464.js.map": "/gohilmahaveer-portfolio/static/js/main.75b44464.js.map",
+    "453.d46e9a51.chunk.js.map": "/gohilmahaveer-portfolio/static/js/453.d46e9a51.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.75b44464.js"
+  ]
+}
