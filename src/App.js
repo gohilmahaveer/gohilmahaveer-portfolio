@@ -1,11 +1,45 @@
-import { useState, useEffect, useRef, createContext, useContext } from "react";
+import {createContext, useContext, useEffect, useRef, useState} from "react";
+import {Document, Page, pdfjs} from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 import {
-  Mail, Phone, MapPin, ChevronDown, Briefcase, GraduationCap,
-  Award, Code2, Zap, Shield, Database, Cloud, GitBranch, Server,
-  Cpu, Layers, Box, ExternalLink, Star, TrendingUp, CheckCircle2,
-  ArrowUp, Menu, X, Globe, Clock, Users, BarChart3, Sun, Moon, Rocket,
-  FileText, Download,
+    ArrowUp,
+    Award,
+    BarChart3,
+    Box,
+    Briefcase,
+    CheckCircle2,
+    ChevronDown,
+    Clock,
+    Cloud,
+    Code2,
+    Cpu,
+    Database,
+    Download,
+    ExternalLink,
+    FileText,
+    GitBranch,
+    Globe,
+    GraduationCap,
+    Layers,
+    Mail,
+    MapPin,
+    Menu,
+    Moon,
+    Phone,
+    Rocket,
+    Server,
+    Shield,
+    Star,
+    Sun,
+    TrendingUp,
+    Users,
+    X,
+    Zap,
 } from "lucide-react";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
 /* ═══════════════════════════════════════════════════════
    APPLE LIQUID GLASS — THEME TOKENS
    Inspired by iOS 26 / macOS Tahoe liquid glass materials
@@ -92,8 +126,16 @@ const themes = {
     tagBg: "rgba(255,255,255,.04)",
   },
 };
-const ThemeCtx = createContext();
+const ThemeCtx = createContext(null);
+
+/** Consume the current theme tokens and mode from ThemeCtx. */
 const useTheme = () => useContext(ThemeCtx);
+
+/**
+ * Wraps the app with a theme context.
+ * Persists the selected mode ("dark" | "light") to localStorage.
+ * @param {{ children: React.ReactNode }} props
+ */
 function ThemeProvider({ children }) {
   const [mode, setMode] = useState(() => {
     try { return localStorage.getItem("theme") || "dark"; } catch { return "dark"; }
@@ -109,6 +151,14 @@ function ThemeProvider({ children }) {
 /* ═══════════════════════════════════════════════════════
    UTILITIES
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Returns [ref, isVisible]. Attaches an IntersectionObserver to the ref
+ * and sets isVisible=true once the element enters the viewport.
+ * Disconnects automatically after the first intersection (fire-once).
+ * @param {number} [threshold=0.12] - Fraction of an element visible to trigger.
+ * @returns {[React.RefObject, boolean]}
+ */
 function useInView(threshold = 0.12) {
   const ref = useRef(null);
   const [vis, setVis] = useState(false);
@@ -123,6 +173,12 @@ function useInView(threshold = 0.12) {
   }, [threshold]);
   return [ref, vis];
 }
+
+/**
+ * Animates children into view when they scroll into the viewport.
+ * Uses useInView internally; wraps children in a div with a CSS transition.
+ * @param {{ children: React.ReactNode, delay?: number, direction?: "up"|"down"|"left"|"right"|"none", style?: React.CSSProperties }} props
+ */
 function FadeIn({ children, delay = 0, direction = "up", style = {} }) {
   const [ref, vis] = useInView();
   const dirs = {
@@ -140,9 +196,16 @@ function FadeIn({ children, delay = 0, direction = "up", style = {} }) {
 /* ═══════════════════════════════════════════════════════
    SHARED — GLASS CARD, PILL, SECTION
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Frosted-glass card with optional hover-lift animation.
+ * Reads glass tokens (background, blur, border, shadow) from the active theme.
+ * @param {{ children: React.ReactNode, style?: React.CSSProperties, radius?: number, hoverLift?: boolean }} props
+ */
 function GlassCard({ children, style: s = {}, radius = 24, hoverLift = true }) {
   const { t } = useTheme();
-  const ref = useRef();
+    /** @type {React.RefObject<HTMLDivElement>} */
+    const ref = useRef(null);
   return (
     <div ref={ref} style={{
       background: t.glass,
@@ -168,6 +231,11 @@ function GlassCard({ children, style: s = {}, radius = 24, hoverLift = true }) {
     >{children}</div>
   );
 }
+
+/**
+ * Small pill badge used for location, date, and contact chips.
+ * @param {{ children: React.ReactNode, style?: React.CSSProperties }} props
+ */
 function Pill({ children, style: s = {} }) {
   const { t } = useTheme();
   return (
@@ -181,6 +249,11 @@ function Pill({ children, style: s = {} }) {
     }}>{children}</span>
   );
 }
+
+/**
+ * Full-width <section> wrapper with a centered max-width container (1080 px).
+ * @param {{ id: string, children: React.ReactNode, style?: React.CSSProperties }} props
+ */
 function Section({ id, children, style: s = {} }) {
   return (
     <section id={id} style={{ position: "relative", zIndex: 1, padding: "88px 0", ...s }}>
@@ -188,6 +261,12 @@ function Section({ id, children, style: s = {} }) {
     </section>
   );
 }
+
+/**
+ * Renders the icon + h2 heading row that opens each portfolio section.
+ * Wrapped in FadeIn for scroll-triggered entrance animation.
+ * @param {{ icon: React.ComponentType, title: string }} props
+ */
 function SectionTitle({ icon: Icon, title }) {
   const { t } = useTheme();
   return (
@@ -212,6 +291,12 @@ function SectionTitle({ icon: Icon, title }) {
 /* ═══════════════════════════════════════════════════════
    MESH BACKGROUND — liquid gradient blobs
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Fixed the full-screen decorative background layer.
+ * Renders several blurred radial-gradient blobs that float behind all content.
+ * Pointer-events are disabled, so it never intercepts clicks.
+ */
 function MeshBackground() {
   const { t } = useTheme();
   return (
@@ -240,6 +325,11 @@ function MeshBackground() {
 /* ═══════════════════════════════════════════════════════
    THEME TOGGLE — pill-shaped
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Circular button that switches between dark and light mode.
+ * Shows a Sun icon in dark mode and a Moon icon in light mode.
+ */
 function ThemeToggle() {
   const { t, mode, toggle } = useTheme();
   return (
@@ -260,6 +350,13 @@ function ThemeToggle() {
 /* ═══════════════════════════════════════════════════════
    NAVIGATION — frosted glass bar
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Sticky top navigation bar.
+ * - Desktop: inline anchor links hidden on mobile via CSS (.nav-desktop).
+ * - Mobile: the hamburger toggle reveals a dropdown menu.
+ * - After 40 px of scroll the bar gains a frosted-glass backdrop.
+ */
 function Nav() {
   const { t } = useTheme();
   const [scrolled, setScrolled] = useState(false);
@@ -350,13 +447,28 @@ function Nav() {
 /* ═══════════════════════════════════════════════════════
    RESUME PAGE — full-tab PDF viewer with skeleton loading
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Full-screen resume viewer rendered with react-pdf.
+ * Works on desktop and mobile — PDF pages are drawn on <canvas> via PDF.js,
+ * bypassing the browser's built-in PDF plugin (absent on Android/iOS).
+ *
+ * Loading sequence:
+ *   1. Skeleton shimmer is shown immediately.
+ *   2. react-pdf Document fires onLoadSuccess → pdfLoaded = true.
+ *   3. Skeleton fades out; rendered PDF pages fade in.
+ *
+ * Page width is measured via ResizeObserver so it fits any screen / orientation.
+ *
+ * @param {{ onBack: () => void }} props
+ */
 function ResumePage({ onBack }) {
   const { t, mode } = useTheme();
+    const [numPages, setNumPages] = useState(null);
   const [pdfLoaded, setPdfLoaded] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  // iOS Safari cannot embed PDFs in iframes
-  const canEmbedPDF = !(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream);
+    const [pageWidth, setPageWidth] = useState(0);
+    const containerRef = useRef(null);
 
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth < 768);
@@ -369,6 +481,17 @@ function ResumePage({ onBack }) {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, []);
+
+    // Measure container width so PDF pages fill it exactly
+    useEffect(() => {
+        if (!containerRef.current) return;
+        const ro = new ResizeObserver(entries => {
+            const width = entries[0].contentRect.width;
+            setPageWidth(Math.min(width - (isMobile ? 24 : 64), 860));
+        });
+        ro.observe(containerRef.current);
+        return () => ro.disconnect();
+    }, [isMobile]);
 
   const pdfUrl = process.env.PUBLIC_URL + "/resume.pdf";
   const shimmer = {
@@ -388,7 +511,7 @@ function ResumePage({ onBack }) {
       position: "fixed", inset: 0, zIndex: 200,
       background: t.bg,
       display: "flex", flexDirection: "column",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif",
+        fontFamily: "-apple-system, BlinkMacSystemFont, ‘SF Pro Text’, ‘Inter’, sans-serif",
     }}>
       {/* ── Compact responsive top bar ── */}
       <div style={{
@@ -421,7 +544,7 @@ function ResumePage({ onBack }) {
           {isMobile ? "Back" : "Back to Portfolio"}
         </button>
 
-        {/* Title — centred, truncated if needed */}
+          {/* Title — centred */}
         <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, overflow: "hidden" }}>
           {!isMobile && (
             <div style={{
@@ -464,131 +587,102 @@ function ResumePage({ onBack }) {
       </div>
 
       {/* ── Content area ── */}
-      <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+        <div ref={containerRef} style={{flex: 1, position: "relative", overflowY: "auto", overflowX: "hidden"}}>
 
-        {/* ── iOS / no-embed fallback ── */}
-        {!canEmbedPDF ? (
-          <div style={{
-            position: "absolute", inset: 0,
-            display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center",
-            gap: 28, padding: "40px 28px",
-            background: t.bg,
-          }}>
-            {/* Glowing icon */}
-            <div style={{
-              width: 96, height: 96, borderRadius: 28,
-              background: t.accentSoft,
-              border: `1px solid ${t.pillBorder}`,
-              boxShadow: `0 0 48px ${t.accentGlow}`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <FileText size={44} color={t.accent} strokeWidth={1.4} />
-            </div>
-            {/* Text */}
-            <div style={{ textAlign: "center", maxWidth: 300 }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: t.text, letterSpacing: "-0.02em", marginBottom: 10 }}>
-                View My Resume
-              </div>
-              <div style={{ fontSize: 14, color: t.textMuted, lineHeight: 1.7 }}>
-                Tap below to open the PDF in your browser’s native viewer—you can read, zoom and save it from there.
-              </div>
-            </div>
-            {/* Open button */}
-            <a
-              href={pdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              id="resume-open-mobile-btn"
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 10,
-                padding: "15px 36px", borderRadius: 18, fontSize: 16, fontWeight: 700,
-                background: t.gradient, color: "#fff",
-                textDecoration: "none",
-                boxShadow: `0 6px 32px ${t.accentGlow}`,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              <FileText size={18} /> Open Resume
-            </a>
-            {/* Save link */}
-            <a
-              href={pdfUrl}
-              download="Mahaveersinh_Gohil_Resume.pdf"
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 7,
-                fontSize: 13, fontWeight: 600, color: t.accent,
-                textDecoration: "none",
-                padding: "8px 16px", borderRadius: 10,
-                background: t.accentSoft, border: `1px solid ${t.pillBorder}`,
-              }}
-            >
-              <Download size={13} /> Save to device
-            </a>
-          </div>
-        ) : (
-          <>
             {/* Skeleton overlay — fades away after PDF loads */}
             <div style={{
-              position: "absolute", inset: 0,
-              background: t.bg,
-              padding: isMobile ? "20px 16px" : "32px",
-              display: "flex", flexDirection: "column", alignItems: "center",
-              opacity: pdfLoaded ? 0 : 1,
-              transition: "opacity .7s ease",
-              pointerEvents: pdfLoaded ? "none" : "auto",
-              overflow: "hidden",
-              zIndex: 2,
+                position: "absolute", inset: 0,
+                background: t.bg,
+                padding: isMobile ? "20px 12px" : "32px",
+                display: "flex", flexDirection: "column", alignItems: "center",
+                opacity: pdfLoaded ? 0 : 1,
+                transition: "opacity .7s ease",
+                pointerEvents: pdfLoaded ? "none" : "auto",
+                overflow: "hidden",
+                zIndex: 2,
             }}>
-              <div style={{ width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", gap: isMobile ? 14 : 20 }}>
-                {/* Name block */}
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                  <div style={sk(isMobile ? "70%" : "55%", isMobile ? 20 : 28, 6)} />
-                  <div style={sk(isMobile ? "50%" : "38%", isMobile ? 12 : 14, 4)} />
-                  <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-                    <div style={sk(isMobile ? 70 : 90, 9, 4)} />
-                    <div style={sk(isMobile ? 95 : 120, 9, 4)} />
-                    <div style={sk(isMobile ? 80 : 100, 9, 4)} />
-                  </div>
-                </div>
-                {/* Divider */}
-                <div style={{ ...shimmer, height: 2, width: "100%", borderRadius: 99 }} />
-                {/* Sections */}
-                {[
-                  { title: isMobile ? 44 : 52, lines: ["90%", "85%", "92%"] },
-                  { title: isMobile ? 56 : 68, lines: ["88%", "75%", "80%", "70%"] },
-                  { title: isMobile ? 48 : 58, lines: ["82%", "60%"] },
-                  { title: isMobile ? 60 : 72, lines: ["95%", "78%", "88%", "65%", "72%"] },
-                ].map((sec, si) => (
-                  <div key={si} style={{ display: "flex", flexDirection: "column", gap: isMobile ? 7 : 10 }}>
-                    <div style={sk(sec.title, isMobile ? 10 : 13, 4)} />
-                    {sec.lines.map((w, li) => (
-                      <div key={li} style={{
-                        ...shimmer, width: w, height: isMobile ? 8 : 10, borderRadius: 4,
-                        animationDelay: `${(si * 0.08 + li * 0.05).toFixed(2)}s`,
-                      }} />
+                <div style={{
+                    width: "100%",
+                    maxWidth: 720,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: isMobile ? 14 : 20
+                }}>
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 8,
+                        marginBottom: 4
+                    }}>
+                        <div style={sk(isMobile ? "70%" : "55%", isMobile ? 20 : 28, 6)}/>
+                        <div style={sk(isMobile ? "50%" : "38%", isMobile ? 12 : 14, 4)}/>
+                        <div style={{display: "flex", gap: 10, marginTop: 4}}>
+                            <div style={sk(isMobile ? 70 : 90, 9, 4)}/>
+                            <div style={sk(isMobile ? 95 : 120, 9, 4)}/>
+                            <div style={sk(isMobile ? 80 : 100, 9, 4)}/>
+                        </div>
+                    </div>
+                    <div style={{...shimmer, height: 2, width: "100%", borderRadius: 99}}/>
+                    {[
+                        {title: isMobile ? 44 : 52, lines: ["90%", "85%", "92%"]},
+                        {title: isMobile ? 56 : 68, lines: ["88%", "75%", "80%", "70%"]},
+                        {title: isMobile ? 48 : 58, lines: ["82%", "60%"]},
+                        {title: isMobile ? 60 : 72, lines: ["95%", "78%", "88%", "65%", "72%"]},
+                    ].map((sec, si) => (
+                        <div key={si} style={{display: "flex", flexDirection: "column", gap: isMobile ? 7 : 10}}>
+                            <div style={sk(sec.title, isMobile ? 10 : 13, 4)}/>
+                            {sec.lines.map((w, li) => (
+                                <div key={li} style={{
+                                    ...shimmer, width: w, height: isMobile ? 8 : 10, borderRadius: 4,
+                                    animationDelay: `${(si * 0.08 + li * 0.05).toFixed(2)}s`,
+                                }}/>
+                            ))}
+                        </div>
                     ))}
-                  </div>
-                ))}
-              </div>
+                </div>
             </div>
 
-            {/* Actual PDF iframe */}
-            <iframe
-              id="resume-pdf-iframe"
-              src={pdfUrl}
-              title="Mahaveersinh Gohil Resume"
-              onLoad={() => setPdfLoaded(true)}
-              style={{
-                position: "absolute", inset: 0,
-                width: "100%", height: "100%",
-                border: "none",
-                opacity: pdfLoaded ? 1 : 0,
-                transition: "opacity .8s ease",
-                zIndex: 1,
-              }}
-            />
-          </>
+            {/* react-pdf renderer — works on desktop AND mobile */}
+            {pageWidth > 0 && (
+                <div style={{
+                    display: "flex", flexDirection: "column", alignItems: "center",
+                    padding: isMobile ? "16px 0 32px" : "32px 0 48px",
+                    gap: isMobile ? 12 : 20,
+                    opacity: pdfLoaded ? 1 : 0,
+                    transition: "opacity .8s ease",
+                    zIndex: 1, position: "relative",
+                }}>
+                    <Document
+                        file={pdfUrl}
+                        onLoadSuccess={({numPages}) => {
+                            setNumPages(numPages);
+                            setPdfLoaded(true);
+                        }}
+                        loading={null}
+                        error={null}
+                    >
+                        <>
+                            {Array.from({length: numPages || 0}, (_, i) => (
+                                <div key={i} style={{
+                                    boxShadow: mode === "dark"
+                                        ? "0 4px 32px rgba(0,0,0,.5)"
+                                        : "0 4px 32px rgba(0,0,0,.15)",
+                                    borderRadius: isMobile ? 8 : 12,
+                                    overflow: "hidden",
+                                    marginBottom: isMobile ? 12 : 20,
+                                }}>
+                                    <Page
+                                        pageNumber={i + 1}
+                                        width={pageWidth}
+                                        renderTextLayer={!isMobile}
+                                        renderAnnotationLayer={false}
+                                    />
+                                </div>
+                            ))}
+                        </>
+                    </Document>
+                </div>
         )}
       </div>
     </div>
@@ -597,6 +691,13 @@ function ResumePage({ onBack }) {
 /* ═══════════════════════════════════════════════════════
    HERO
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Full-viewport hero section shown at the top of the portfolio.
+ * Staggered entrance animations play on the mount via a delayed `loaded` flag.
+ * Contains the avatar, name, job title, contact pills, and the Resume CTA button.
+ * @param {{ onViewResume: () => void }} props
+ */
 function Hero({ onViewResume }) {
   const { t } = useTheme();
   const [loaded, setLoaded] = useState(false);
@@ -650,9 +751,10 @@ function Hero({ onViewResume }) {
             { icon: MapPin, text: "Rajkot, Gujarat" },
             { icon: Phone, text: "+91-8000545662" },
             { icon: Mail, text: "gohilmahaveer@gmail.com" },
-          ].map((c, i) => (
-            <Pill key={i}><c.icon size={13} color={t.accent} />{c.text}</Pill>
-          ))}
+          ].map((c, i) => {
+              const Icon = c.icon;
+              return <Pill key={i}><Icon size={13} color={t.accent}/>{c.text}</Pill>;
+          })}
         </div>
         {/* ── Resume Button ── */}
         <div style={{ ...a(0.62), display: "flex", justifyContent: "center", marginBottom: 40 }}>
@@ -680,7 +782,7 @@ function Hero({ onViewResume }) {
             }}
           >
             <FileText size={17} />
-            View Resume
+              Resume
           </button>
         </div>
         <div style={{ ...a(0.72), marginTop: 0 }}>
@@ -695,6 +797,11 @@ function Hero({ onViewResume }) {
 /* ═══════════════════════════════════════════════════════
    ABOUT
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * "About Me" section with a bio paragraph and a 2×2 stats grid
+ * (years of experience, microservices count, uptime, code reviews).
+ */
 function About() {
   const { t } = useTheme();
   const stats = [
@@ -718,20 +825,23 @@ function About() {
           </GlassCard>
         </FadeIn>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-          {stats.map((st, i) => (
+            {stats.map((st, i) => {
+                const Icon = st.icon;
+                return (
             <FadeIn key={i} delay={0.12 + i * 0.07}>
               <GlassCard style={{ padding: "22px 16px", textAlign: "center", height: "100%" }}>
                 <div style={{
                   width: 38, height: 38, borderRadius: 12, margin: "0 auto 10px",
                   background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <st.icon size={18} color={t.accent} strokeWidth={1.8} />
+                    <Icon size={18} color={t.accent} strokeWidth={1.8}/>
                 </div>
                 <div style={{ fontSize: 26, fontWeight: 700, color: t.text, letterSpacing: "-0.02em" }}>{st.value}</div>
                 <div style={{ color: t.textMuted, fontSize: 12, fontWeight: 500, marginTop: 3 }}>{st.label}</div>
               </GlassCard>
             </FadeIn>
-          ))}
+                );
+            })}
         </div>
       </div>
     </Section>
@@ -740,6 +850,11 @@ function About() {
 /* ═══════════════════════════════════════════════════════
    EXPERIENCE
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Work history section. Renders each job as a GlassCard with a gradient
+ * accent line at the top, company/period pills, and a bullet-icon highlights list.
+ */
 function Experience() {
   const { t } = useTheme();
   const jobs = [
@@ -799,17 +914,20 @@ function Experience() {
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
-                {job.highlights.map((h, hi) => (
+                  {job.highlights.map((h, hi) => {
+                      const Icon = h.icon;
+                      return (
                   <div key={hi} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
                     <div style={{
                       width: 26, height: 26, borderRadius: 8, flexShrink: 0, marginTop: 1,
                       background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center",
                     }}>
-                      <h.icon size={13} color={t.accent} strokeWidth={2} />
+                        <Icon size={13} color={t.accent} strokeWidth={2}/>
                     </div>
                     <p style={{ color: t.textSecondary, fontSize: 14, lineHeight: 1.65, letterSpacing: "-0.01em" }}>{h.text}</p>
                   </div>
-                ))}
+                      );
+                  })}
               </div>
             </GlassCard>
           </FadeIn>
@@ -821,6 +939,13 @@ function Experience() {
 /* ═══════════════════════════════════════════════════════
    SKILLS
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Animated progress bar for a single skill.
+ * The fill animates from 0 → skill.level% once the bar scrolls into view
+ * (driven by useInView). The delay prop staggers bars within a category.
+ * @param {{ skill: { name: string, level: number, emoji: string }, delay: number }} props
+ */
 function SkillBar({ skill, delay }) {
   const { t } = useTheme();
   const [ref, vis] = useInView();
@@ -842,6 +967,12 @@ function SkillBar({ skill, delay }) {
     </div>
   );
 }
+
+/**
+ * Technical skills section. Groups skills into six categories
+ * (Languages, Frameworks, Databases, Cloud/DevOps, Security, Architecture)
+ * and renders each as a GlassCard containing SkillBar rows.
+ */
 function Skills() {
   const { t } = useTheme();
   const categories = [
@@ -875,7 +1006,9 @@ function Skills() {
     <Section id="skills">
       <SectionTitle icon={Cpu} title="Technical Skills" />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))", gap: 18 }}>
-        {categories.map((cat, ci) => (
+          {categories.map((cat, ci) => {
+              const Icon = cat.icon;
+              return (
           <FadeIn key={ci} delay={ci * 0.06}>
             <GlassCard style={{ padding: 26, height: "100%" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
@@ -883,7 +1016,7 @@ function Skills() {
                   width: 34, height: 34, borderRadius: 10,
                   background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <cat.icon size={16} color={t.accent} strokeWidth={2} />
+                    <Icon size={16} color={t.accent} strokeWidth={2}/>
                 </div>
                 <h3 style={{ fontSize: 15, fontWeight: 600, color: t.text, letterSpacing: "-0.01em" }}>{cat.title}</h3>
               </div>
@@ -894,7 +1027,8 @@ function Skills() {
               </div>
             </GlassCard>
           </FadeIn>
-        ))}
+              );
+          })}
       </div>
     </Section>
   );
@@ -902,6 +1036,11 @@ function Skills() {
 /* ═══════════════════════════════════════════════════════
    EDUCATION
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Education section displaying MCA and BCA degrees as GlassCards
+ * with degree name, institution, period pill, and field of study.
+ */
 function Education() {
   const { t } = useTheme();
   const edu = [
@@ -931,6 +1070,11 @@ function Education() {
 /* ═══════════════════════════════════════════════════════
    ACHIEVEMENTS
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Key Achievements section rendered as a 4-card grid.
+ * Each card has a centred icon, a bold metric title, and a short description.
+ */
 function Achievements() {
   const { t } = useTheme();
   const items = [
@@ -943,7 +1087,9 @@ function Achievements() {
     <Section id="achievements">
       <SectionTitle icon={Award} title="Key Achievements" />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 18 }}>
-        {items.map((a, i) => (
+          {items.map((item, i) => {
+              const Icon = item.icon;
+              return (
           <FadeIn key={i} delay={i * 0.08}>
             <GlassCard style={{ padding: 28, textAlign: "center" }}>
               <div style={{
@@ -951,13 +1097,20 @@ function Achievements() {
                 background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center",
                 border: `1px solid ${t.pillBorder}`,
               }}>
-                <a.icon size={22} color={t.accent} strokeWidth={1.8} />
+                  <Icon size={22} color={t.accent} strokeWidth={1.8}/>
               </div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: t.text, marginBottom: 8, letterSpacing: "-0.02em" }}>{a.title}</h3>
-              <p style={{ color: t.textMuted, fontSize: 13, lineHeight: 1.6 }}>{a.desc}</p>
+                <h3 style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: t.text,
+                    marginBottom: 8,
+                    letterSpacing: "-0.02em"
+                }}>{item.title}</h3>
+                <p style={{color: t.textMuted, fontSize: 13, lineHeight: 1.6}}>{item.desc}</p>
             </GlassCard>
           </FadeIn>
-        ))}
+              );
+          })}
       </div>
     </Section>
   );
@@ -965,6 +1118,11 @@ function Achievements() {
 /* ═══════════════════════════════════════════════════════
    CONTACT
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * "Get In Touch" section with clickable contact cards (email, phone, LinkedIn, location).
+ * External links open in a new tab; the location card scrolls nowhere (href= "#").
+ */
 function Contact() {
   const { t } = useTheme();
   const items = [
@@ -977,7 +1135,9 @@ function Contact() {
     <Section id="contact" style={{ paddingBottom: 48 }}>
       <SectionTitle icon={Globe} title="Get In Touch" />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
-        {items.map((l, i) => (
+          {items.map((l, i) => {
+              const Icon = l.icon;
+              return (
           <FadeIn key={i} delay={i * 0.08}>
             <a href={l.href} target={l.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" style={{ textDecoration: "none" }}>
               <GlassCard style={{ padding: "18px 22px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer" }} radius={18}>
@@ -985,7 +1145,7 @@ function Contact() {
                   width: 40, height: 40, borderRadius: 12, flexShrink: 0,
                   background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <l.icon size={18} color={t.accent} strokeWidth={1.8} />
+                    <Icon size={18} color={t.accent} strokeWidth={1.8}/>
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 11, fontWeight: 600, color: t.textMuted, textTransform: "uppercase", letterSpacing: 1 }}>{l.label}</div>
@@ -995,7 +1155,8 @@ function Contact() {
               </GlassCard>
             </a>
           </FadeIn>
-        ))}
+              );
+          })}
       </div>
     </Section>
   );
@@ -1003,6 +1164,8 @@ function Contact() {
 /* ═══════════════════════════════════════════════════════
    FOOTER + BACK TO TOP
    ═══════════════════════════════════════════════════════ */
+
+/** Minimal footer showing the copyright year, auto-updated via Date. */
 function Footer() {
   const { t } = useTheme();
   return (
@@ -1011,6 +1174,11 @@ function Footer() {
     </footer>
   );
 }
+
+/**
+ * Fixed the "back to top" anchor button that fades in after 500 px of scroll.
+ * Scales to 0.6 and hides via pointer-events:none when not visible.
+ */
 function BackToTop() {
   const { t } = useTheme();
   const [show, setShow] = useState(false);
@@ -1038,6 +1206,12 @@ function BackToTop() {
 /* ═══════════════════════════════════════════════════════
    GLOBAL STYLES
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Injects a <style> tag with reset rules, keyframe animations (bounce, skeletonShimmer),
+ * scrollbar styling, and responsive CSS classes (nav-desktop / nav-toggle breakpoints).
+ * Must be rendered inside ThemeProvider so it can read theme tokens for scrollbar colors.
+ */
 function GlobalStyles() {
   const { t } = useTheme();
   return (
@@ -1078,15 +1252,17 @@ function GlobalStyles() {
         .nav-desktop { display: none !important; }
         .nav-toggle { display: block !important; }
       }
-      @media (min-width: 769px) {
-        .nav-mobile { display: none !important; }
-      }
     `}</style>
   );
 }
 /* ═══════════════════════════════════════════════════════
    APP
    ═══════════════════════════════════════════════════════ */
+
+/**
+ * Root component. Wraps the app in ThemeProvider so every child
+ * can access theme tokens and the toggle function via useTheme().
+ */
 export default function App() {
   return (
     <ThemeProvider>
@@ -1094,6 +1270,11 @@ export default function App() {
     </ThemeProvider>
   );
 }
+
+/**
+ * Inner router — switches between the portfolio page and the full-screen resume viewer.
+ * Kept separate from App so ThemeProvider is already mounted when Inner first renders.
+ */
 function Inner() {
   const [page, setPage] = useState("portfolio");
   if (page === "resume") {
