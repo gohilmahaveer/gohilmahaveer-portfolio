@@ -4,6 +4,7 @@ import {
   Award, Code2, Zap, Shield, Database, Cloud, GitBranch, Server,
   Cpu, Layers, Box, ExternalLink, Star, TrendingUp, CheckCircle2,
   ArrowUp, Menu, X, Globe, Clock, Users, BarChart3, Sun, Moon, Rocket,
+  FileText, Download,
 } from "lucide-react";
 /* ═══════════════════════════════════════════════════════
    APPLE LIQUID GLASS — THEME TOKENS
@@ -347,9 +348,256 @@ function Nav() {
   );
 }
 /* ═══════════════════════════════════════════════════════
+   RESUME PAGE — full-tab PDF viewer with skeleton loading
+   ═══════════════════════════════════════════════════════ */
+function ResumePage({ onBack }) {
+  const { t, mode } = useTheme();
+  const [pdfLoaded, setPdfLoaded] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  // iOS Safari cannot embed PDFs in iframes
+  const canEmbedPDF = !(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
+  const pdfUrl = process.env.PUBLIC_URL + "/resume.pdf";
+  const shimmer = {
+    background: mode === "dark"
+      ? "linear-gradient(90deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.10) 40%, rgba(255,255,255,.04) 100%)"
+      : "linear-gradient(90deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.12) 40%, rgba(0,0,0,.05) 100%)",
+    backgroundSize: "300% 100%",
+    animation: "skeletonShimmer 1.6s ease-in-out infinite",
+    borderRadius: 6,
+  };
+  const sk = (w, h, r = 6, extra = {}) => ({
+    ...shimmer, width: w, height: h, borderRadius: r, flexShrink: 0, ...extra,
+  });
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 200,
+      background: t.bg,
+      display: "flex", flexDirection: "column",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif",
+    }}>
+      {/* ── Compact responsive top bar ── */}
+      <div style={{
+        display: "flex", alignItems: "center",
+        padding: isMobile ? "8px 12px" : "10px 20px",
+        gap: isMobile ? 8 : 12,
+        background: t.navGlass,
+        backdropFilter: t.navBlur, WebkitBackdropFilter: t.navBlur,
+        borderBottom: `1px solid ${t.divider}`,
+        flexShrink: 0, minHeight: isMobile ? 50 : 56,
+      }}>
+        {/* Back button */}
+        <button
+          id="resume-back-btn"
+          onClick={onBack}
+          style={{
+            display: "flex", alignItems: "center", gap: isMobile ? 4 : 7,
+            padding: isMobile ? "6px 10px" : "7px 14px",
+            borderRadius: 10, fontSize: isMobile ? 12 : 13, fontWeight: 600,
+            background: t.toggleBg, color: t.textSecondary,
+            border: `1px solid ${t.glassBorder}`,
+            cursor: "pointer", transition: "all .25s", flexShrink: 0,
+          }}
+          onMouseOver={e => { e.currentTarget.style.background = t.accentSoft; e.currentTarget.style.color = t.accent; }}
+          onMouseOut={e => { e.currentTarget.style.background = t.toggleBg; e.currentTarget.style.color = t.textSecondary; }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          {isMobile ? "Back" : "Back to Portfolio"}
+        </button>
+
+        {/* Title — centred, truncated if needed */}
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, overflow: "hidden" }}>
+          {!isMobile && (
+            <div style={{
+              width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+              background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center",
+              border: `1px solid ${t.pillBorder}`,
+            }}>
+              <FileText size={13} color={t.accent} />
+            </div>
+          )}
+          <span style={{
+            fontWeight: 600, fontSize: isMobile ? 13 : 14,
+            color: t.text, letterSpacing: "-0.01em",
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          }}>
+            {isMobile ? "Resume" : "Resume — Mahaveersinh Gohil"}
+          </span>
+        </div>
+
+        {/* Download button */}
+        <a
+          href={pdfUrl}
+          download="Mahaveersinh_Gohil_Resume.pdf"
+          id="resume-download-btn"
+          style={{
+            display: "flex", alignItems: "center", gap: isMobile ? 4 : 6,
+            padding: isMobile ? "6px 10px" : "7px 14px",
+            borderRadius: 10, fontSize: isMobile ? 12 : 13, fontWeight: 600,
+            background: t.gradient, color: "#fff",
+            border: "none", textDecoration: "none",
+            boxShadow: `0 2px 12px ${t.accentGlow}`,
+            transition: "all .25s", flexShrink: 0,
+          }}
+          onMouseOver={e => { e.currentTarget.style.opacity = "0.85"; }}
+          onMouseOut={e => { e.currentTarget.style.opacity = "1"; }}
+        >
+          <Download size={isMobile ? 12 : 13} />
+          {isMobile ? "Save" : "Download PDF"}
+        </a>
+      </div>
+
+      {/* ── Content area ── */}
+      <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+
+        {/* ── iOS / no-embed fallback ── */}
+        {!canEmbedPDF ? (
+          <div style={{
+            position: "absolute", inset: 0,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            gap: 28, padding: "40px 28px",
+            background: t.bg,
+          }}>
+            {/* Glowing icon */}
+            <div style={{
+              width: 96, height: 96, borderRadius: 28,
+              background: t.accentSoft,
+              border: `1px solid ${t.pillBorder}`,
+              boxShadow: `0 0 48px ${t.accentGlow}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <FileText size={44} color={t.accent} strokeWidth={1.4} />
+            </div>
+            {/* Text */}
+            <div style={{ textAlign: "center", maxWidth: 300 }}>
+              <div style={{ fontSize: 22, fontWeight: 700, color: t.text, letterSpacing: "-0.02em", marginBottom: 10 }}>
+                View My Resume
+              </div>
+              <div style={{ fontSize: 14, color: t.textMuted, lineHeight: 1.7 }}>
+                Tap below to open the PDF in your browser’s native viewer—you can read, zoom and save it from there.
+              </div>
+            </div>
+            {/* Open button */}
+            <a
+              href={pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              id="resume-open-mobile-btn"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 10,
+                padding: "15px 36px", borderRadius: 18, fontSize: 16, fontWeight: 700,
+                background: t.gradient, color: "#fff",
+                textDecoration: "none",
+                boxShadow: `0 6px 32px ${t.accentGlow}`,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              <FileText size={18} /> Open Resume
+            </a>
+            {/* Save link */}
+            <a
+              href={pdfUrl}
+              download="Mahaveersinh_Gohil_Resume.pdf"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 7,
+                fontSize: 13, fontWeight: 600, color: t.accent,
+                textDecoration: "none",
+                padding: "8px 16px", borderRadius: 10,
+                background: t.accentSoft, border: `1px solid ${t.pillBorder}`,
+              }}
+            >
+              <Download size={13} /> Save to device
+            </a>
+          </div>
+        ) : (
+          <>
+            {/* Skeleton overlay — fades away after PDF loads */}
+            <div style={{
+              position: "absolute", inset: 0,
+              background: t.bg,
+              padding: isMobile ? "20px 16px" : "32px",
+              display: "flex", flexDirection: "column", alignItems: "center",
+              opacity: pdfLoaded ? 0 : 1,
+              transition: "opacity .7s ease",
+              pointerEvents: pdfLoaded ? "none" : "auto",
+              overflow: "hidden",
+              zIndex: 2,
+            }}>
+              <div style={{ width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", gap: isMobile ? 14 : 20 }}>
+                {/* Name block */}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <div style={sk(isMobile ? "70%" : "55%", isMobile ? 20 : 28, 6)} />
+                  <div style={sk(isMobile ? "50%" : "38%", isMobile ? 12 : 14, 4)} />
+                  <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+                    <div style={sk(isMobile ? 70 : 90, 9, 4)} />
+                    <div style={sk(isMobile ? 95 : 120, 9, 4)} />
+                    <div style={sk(isMobile ? 80 : 100, 9, 4)} />
+                  </div>
+                </div>
+                {/* Divider */}
+                <div style={{ ...shimmer, height: 2, width: "100%", borderRadius: 99 }} />
+                {/* Sections */}
+                {[
+                  { title: isMobile ? 44 : 52, lines: ["90%", "85%", "92%"] },
+                  { title: isMobile ? 56 : 68, lines: ["88%", "75%", "80%", "70%"] },
+                  { title: isMobile ? 48 : 58, lines: ["82%", "60%"] },
+                  { title: isMobile ? 60 : 72, lines: ["95%", "78%", "88%", "65%", "72%"] },
+                ].map((sec, si) => (
+                  <div key={si} style={{ display: "flex", flexDirection: "column", gap: isMobile ? 7 : 10 }}>
+                    <div style={sk(sec.title, isMobile ? 10 : 13, 4)} />
+                    {sec.lines.map((w, li) => (
+                      <div key={li} style={{
+                        ...shimmer, width: w, height: isMobile ? 8 : 10, borderRadius: 4,
+                        animationDelay: `${(si * 0.08 + li * 0.05).toFixed(2)}s`,
+                      }} />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Actual PDF iframe */}
+            <iframe
+              id="resume-pdf-iframe"
+              src={pdfUrl}
+              title="Mahaveersinh Gohil Resume"
+              onLoad={() => setPdfLoaded(true)}
+              style={{
+                position: "absolute", inset: 0,
+                width: "100%", height: "100%",
+                border: "none",
+                opacity: pdfLoaded ? 1 : 0,
+                transition: "opacity .8s ease",
+                zIndex: 1,
+              }}
+            />
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+/* ═══════════════════════════════════════════════════════
    HERO
    ═══════════════════════════════════════════════════════ */
-function Hero() {
+function Hero({ onViewResume }) {
   const { t } = useTheme();
   const [loaded, setLoaded] = useState(false);
   useEffect(() => { setTimeout(() => setLoaded(true), 120); }, []);
@@ -397,7 +645,7 @@ function Hero() {
           3+ years crafting scalable microservices and cloud-native solutions.
           Passionate about clean architecture, performance, and reliability.
         </p>
-        <div style={{ ...a(0.56), display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 10, marginBottom: 40 }}>
+        <div style={{ ...a(0.56), display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 10, marginBottom: 32 }}>
           {[
             { icon: MapPin, text: "Rajkot, Gujarat" },
             { icon: Phone, text: "+91-8000545662" },
@@ -406,7 +654,36 @@ function Hero() {
             <Pill key={i}><c.icon size={13} color={t.accent} />{c.text}</Pill>
           ))}
         </div>
-        <div style={{ ...a(0.7), marginTop: 40 }}>
+        {/* ── Resume Button ── */}
+        <div style={{ ...a(0.62), display: "flex", justifyContent: "center", marginBottom: 40 }}>
+          <button
+            id="open-resume-btn"
+            onClick={onViewResume}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 9,
+              padding: "13px 28px", borderRadius: 16, fontSize: 15, fontWeight: 600,
+              background: t.gradient,
+              color: "#fff",
+              border: "none",
+              boxShadow: `0 4px 24px ${t.accentGlow}`,
+              cursor: "pointer",
+              letterSpacing: "-0.01em",
+              transition: "transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease",
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.transform = "translateY(-3px) scale(1.03)";
+              e.currentTarget.style.boxShadow = `0 8px 36px ${t.accentGlow}`;
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.transform = "none";
+              e.currentTarget.style.boxShadow = `0 4px 24px ${t.accentGlow}`;
+            }}
+          >
+            <FileText size={17} />
+            View Resume
+          </button>
+        </div>
+        <div style={{ ...a(0.72), marginTop: 0 }}>
           <a href="#about" style={{ color: t.textMuted, animation: "bounce 2.2s ease-in-out infinite", display: "inline-block" }}>
             <ChevronDown size={24} />
           </a>
@@ -793,6 +1070,10 @@ function GlobalStyles() {
         75%  { transform: translate(20px, 10px) scale(1.03); }
         100% { transform: translate(-10px, -15px) scale(1.01); }
       }
+      @keyframes skeletonShimmer {
+        0%   { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
       @media (max-width: 768px) {
         .nav-desktop { display: none !important; }
         .nav-toggle { display: block !important; }
@@ -814,12 +1095,21 @@ export default function App() {
   );
 }
 function Inner() {
+  const [page, setPage] = useState("portfolio");
+  if (page === "resume") {
+    return (
+      <>
+        <GlobalStyles />
+        <ResumePage onBack={() => setPage("portfolio")} />
+      </>
+    );
+  }
   return (
     <>
       <GlobalStyles />
       <MeshBackground />
       <Nav />
-      <Hero />
+      <Hero onViewResume={() => setPage("resume")} />
       <About />
       <Experience />
       <Skills />
