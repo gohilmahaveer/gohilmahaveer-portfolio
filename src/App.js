@@ -698,6 +698,13 @@ function ResumePage({ onBack }) {
  * Contains the avatar, name, job title, contact pills, and the Resume CTA button.
  * @param {{ onViewResume: () => void }} props
  */
+const HERO_ROLES = [
+    "Java Backend Engineer",
+    "Microservices Architect",
+    "Spring Boot Developer",
+    "Cloud-Native Builder",
+];
+
 function Hero({ onViewResume }) {
   const { t } = useTheme();
   const [loaded, setLoaded] = useState(false);
@@ -706,6 +713,33 @@ function Hero({ onViewResume }) {
     opacity: loaded ? 1 : 0, transform: loaded ? "none" : "translateY(24px)",
     transition: `all .9s cubic-bezier(.22,1,.36,1) ${d}s`,
   });
+
+    // Typewriter state
+    const [roleIndex, setRoleIndex] = useState(0);
+    const [displayed, setDisplayed] = useState("");
+    const [typing, setTyping] = useState(true);
+
+    useEffect(() => {
+        const current = HERO_ROLES[roleIndex];
+        if (typing) {
+            if (displayed.length < current.length) {
+                const id = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 60);
+                return () => clearTimeout(id);
+            } else {
+                const id = setTimeout(() => setTyping(false), 1800);
+                return () => clearTimeout(id);
+            }
+        } else {
+            if (displayed.length > 0) {
+                const id = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 35);
+                return () => clearTimeout(id);
+            } else {
+                setRoleIndex((roleIndex + 1) % HERO_ROLES.length);
+                setTyping(true);
+            }
+        }
+    }, [displayed, typing, roleIndex]);
+
   return (
     <section id="hero" style={{
       position: "relative", zIndex: 1, minHeight: "100vh",
@@ -735,8 +769,14 @@ function Hero({ onViewResume }) {
         <p style={{
           ...a(0.38), fontSize: "clamp(17px,2.5vw,21px)", fontWeight: 600,
           color: t.accent, marginBottom: 16, letterSpacing: "-0.01em",
+            minHeight: "1.4em",
         }}>
-          Java Backend Engineer
+            {displayed}
+            <span style={{
+                display: "inline-block", width: 2, height: "1em",
+                background: t.accent, marginLeft: 2, verticalAlign: "text-bottom",
+                animation: "blink 1s step-end infinite",
+            }}/>
         </p>
         <p style={{
           ...a(0.48), fontSize: "clamp(14px,1.8vw,16px)",
@@ -799,17 +839,63 @@ function Hero({ onViewResume }) {
    ═══════════════════════════════════════════════════════ */
 
 /**
- * "About Me" section with a bio paragraph and a 2×2 stats grid
+ * Animated stat card that counts up from 0 to `end` using requestAnimationFrame
+ * once it scrolls into view. Handles integer (floor) and decimal (toFixed(1)) ends.
+ */
+function AnimatedStatCard({icon: Icon, end, suffix, label, delay}) {
+    const {t} = useTheme();
+    const [ref, vis] = useInView();
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        if (!vis) return;
+        let startTime = null;
+        const duration = 1000;
+        const animate = (ts) => {
+            if (!startTime) startTime = ts;
+            const progress = Math.min((ts - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(eased * end);
+            if (progress < 1) requestAnimationFrame(animate);
+            else setCount(end);
+        };
+        requestAnimationFrame(animate);
+    }, [vis, end]);
+
+    const display = Number.isInteger(end) ? Math.floor(count) : count.toFixed(1);
+
+    return (
+        <FadeIn delay={delay}>
+            <div ref={ref}>
+                <GlassCard style={{padding: "22px 16px", textAlign: "center", height: "100%"}}>
+                    <div style={{
+                        width: 38, height: 38, borderRadius: 12, margin: "0 auto 10px",
+                        background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                        <Icon size={18} color={t.accent} strokeWidth={1.8}/>
+                    </div>
+                    <div style={{fontSize: 26, fontWeight: 700, color: t.text, letterSpacing: "-0.02em"}}>
+                        {display}{suffix}
+                    </div>
+                    <div style={{color: t.textMuted, fontSize: 12, fontWeight: 500, marginTop: 3}}>{label}</div>
+                </GlassCard>
+            </div>
+        </FadeIn>
+    );
+}
+
+/**
+ * "About Me" section with a bio paragraph and a 2×2 animated stats grid
  * (years of experience, microservices count, uptime, code reviews).
  */
 function About() {
+    const stats = [
+        {icon: Clock, end: 3, suffix: "+", label: "Years"},
+        {icon: Server, end: 8, suffix: "+", label: "Services"},
+        {icon: TrendingUp, end: 99.9, suffix: "%", label: "Uptime"},
+        {icon: Users, end: 100, suffix: "+", label: "Reviews"},
+    ];
   const { t } = useTheme();
-  const stats = [
-    { icon: Clock, value: "3+", label: "Years" },
-    { icon: Server, value: "8+", label: "Services" },
-    { icon: TrendingUp, value: "99.9%", label: "Uptime" },
-    { icon: Users, value: "100+", label: "Reviews" },
-  ];
   return (
     <Section id="about">
       <SectionTitle icon={Zap} title="About Me" />
@@ -825,23 +911,16 @@ function About() {
           </GlassCard>
         </FadeIn>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-            {stats.map((st, i) => {
-                const Icon = st.icon;
-                return (
-            <FadeIn key={i} delay={0.12 + i * 0.07}>
-              <GlassCard style={{ padding: "22px 16px", textAlign: "center", height: "100%" }}>
-                <div style={{
-                  width: 38, height: 38, borderRadius: 12, margin: "0 auto 10px",
-                  background: t.accentSoft, display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                    <Icon size={18} color={t.accent} strokeWidth={1.8}/>
-                </div>
-                <div style={{ fontSize: 26, fontWeight: 700, color: t.text, letterSpacing: "-0.02em" }}>{st.value}</div>
-                <div style={{ color: t.textMuted, fontSize: 12, fontWeight: 500, marginTop: 3 }}>{st.label}</div>
-              </GlassCard>
-            </FadeIn>
-                );
-            })}
+            {stats.map((st, i) => (
+                <AnimatedStatCard
+                    key={i}
+                    icon={st.icon}
+                    end={st.end}
+                    suffix={st.suffix}
+                    label={st.label}
+                    delay={0.12 + i * 0.07}
+                />
+            ))}
         </div>
       </div>
     </Section>
@@ -1236,6 +1315,10 @@ function GlobalStyles() {
       @keyframes bounce {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(8px); }
+      }
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
       }
       @keyframes liquidFloat {
         0%   { transform: translate(0, 0) scale(1); }
