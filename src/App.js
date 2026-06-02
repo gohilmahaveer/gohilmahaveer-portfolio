@@ -22,7 +22,9 @@ import {
     Globe,
     GraduationCap,
     Layers,
+    Leaf,
     Mail,
+    Monitor,
     MapPin,
     Menu,
     Moon,
@@ -30,6 +32,7 @@ import {
     Rocket,
     Server,
     Shield,
+    Sparkles,
     Star,
     Sun,
     TrendingUp,
@@ -82,48 +85,160 @@ const themes = {
     barBg: "rgba(0,122,255,.08)",
     barFill: "linear-gradient(90deg, #007AFF 0%, #5AC8FA 100%)",
     scrollThumb: "rgba(0,0,0,.15)",
-    toggleBg: "rgba(0,0,0,.04)",
+    toggleBg: "rgba(60,60,67,.12)",
+    toggleBorder: "rgba(60,60,67,.22)",
     pillBg: "rgba(0,122,255,.07)",
     pillBorder: "rgba(0,122,255,.12)",
     divider: "rgba(0,0,0,.06)",
     tagBg: "rgba(0,0,0,.03)",
   },
   dark: {
-    bg: "#000000",
-    meshA: "rgba(80, 140, 255, .08)",
-    meshB: "rgba(160, 90, 220, .06)",
-    meshC: "rgba(60, 180, 160, .05)",
-    meshD: "rgba(220, 130, 80, .04)",
-    glass: "rgba(44,44,46,.45)",
-    glassHover: "rgba(58,58,60,.55)",
-    glassBorder: "rgba(255,255,255,.08)",
-    glassBorderHover: "rgba(255,255,255,.14)",
-    glassShadow: "0 2px 20px rgba(0,0,0,.15), 0 8px 40px rgba(0,0,0,.2)",
-    glassShadowHover: "0 4px 24px rgba(0,0,0,.2), 0 16px 56px rgba(0,0,0,.35)",
-    glassBlur: "blur(40px) saturate(1.6)",
-    navGlass: "rgba(30,30,30,.55)",
-    navBorder: "rgba(255,255,255,.06)",
-    navBlur: "blur(40px) saturate(1.8)",
-    text: "#F5F5F7",
-    textSecondary: "#A1A1A6",
-    textMuted: "#6E6E73",
-    accent: "#0A84FF",
-    accentSoft: "rgba(10,132,255,.12)",
-    accentGlow: "rgba(10,132,255,.2)",
-    accent2: "#30D158",
+    bg: "#010409",
+    meshA: "rgba(10, 80, 255, .12)",
+    meshB: "rgba(110, 40, 220, .09)",
+    meshC: "rgba(0, 160, 140, .07)",
+    meshD: "rgba(240, 110, 50, .05)",
+    glass: "rgba(22, 27, 34, .65)",
+    glassHover: "rgba(30, 35, 45, .75)",
+    glassBorder: "rgba(255,255,255,.1)",
+    glassBorderHover: "rgba(255,255,255,.18)",
+    glassShadow: "0 2px 20px rgba(0,0,0,.3), 0 8px 40px rgba(0,0,0,.4)",
+    glassShadowHover: "0 4px 24px rgba(0,0,0,.4), 0 16px 56px rgba(0,0,0,.6)",
+    glassBlur: "blur(40px) saturate(1.8)",
+    navGlass: "rgba(13, 17, 23, .72)",
+    navBorder: "rgba(255,255,255,.08)",
+    navBlur: "blur(40px) saturate(2)",
+    text: "#F0F6FC",
+    textSecondary: "#C9D1D9",
+    textMuted: "#8B949E",
+    accent: "#58A6FF",
+    accentSoft: "rgba(88, 166, 255, .15)",
+    accentGlow: "rgba(88, 166, 255, .25)",
+    accent2: "#39D353",
     accent3: "#FF9F0A",
     accent4: "#BF5AF2",
     accent5: "#FF453A",
-    gradient: "linear-gradient(135deg, #0A84FF 0%, #64D2FF 100%)",
-    gradientText: "linear-gradient(135deg, #0A84FF 0%, #5E5CE6 100%)",
-    barBg: "rgba(10,132,255,.1)",
-    barFill: "linear-gradient(90deg, #0A84FF 0%, #64D2FF 100%)",
-    scrollThumb: "rgba(255,255,255,.12)",
-    toggleBg: "rgba(255,255,255,.06)",
-    pillBg: "rgba(10,132,255,.1)",
-    pillBorder: "rgba(10,132,255,.18)",
+    gradient: "linear-gradient(135deg, #1D4ED8 0%, #58A6FF 100%)",
+    gradientText: "linear-gradient(135deg, #58A6FF 0%, #A371F7 100%)",
+    barBg: "rgba(88, 166, 255, .12)",
+    barFill: "linear-gradient(90deg, #1D4ED8 0%, #58A6FF 100%)",
+    scrollThumb: "rgba(255,255,255,.15)",
+    toggleBg: "rgba(255,255,255,.08)",
+    pillBg: "rgba(88,166,255,.10)",
+    pillBorder: "rgba(88,166,255,.18)",
     divider: "rgba(255,255,255,.06)",
     tagBg: "rgba(255,255,255,.04)",
+  },
+  forest: {
+    bg: "#051605",
+    meshA: "rgba(34, 139, 34, .12)",
+    meshB: "rgba(0, 100, 0, .08)",
+    meshC: "rgba(144, 238, 144, .06)",
+    meshD: "rgba(107, 142, 35, .05)",
+    glass: "rgba(20, 40, 20, .55)",
+    glassHover: "rgba(30, 60, 30, .72)",
+    glassBorder: "rgba(255,255,255,.08)",
+    glassBorderHover: "rgba(255,255,255,.14)",
+    glassShadow: "0 2px 20px rgba(0,0,0,.2), 0 8px 40px rgba(0,0,0,.3)",
+    glassShadowHover: "0 4px 24px rgba(0,0,0,.3), 0 16px 56px rgba(0,0,0,.45)",
+    glassBlur: "blur(40px) saturate(1.4)",
+    navGlass: "rgba(15, 30, 15, .65)",
+    navBorder: "rgba(255,255,255,.06)",
+    navBlur: "blur(40px) saturate(1.6)",
+    text: "#E8F5E9",
+    textSecondary: "#A5D6A7",
+    textMuted: "#66BB6A",
+    accent: "#4CAF50",
+    accentSoft: "rgba(76, 175, 80, .15)",
+    accentGlow: "rgba(76, 175, 80, .25)",
+    accent2: "#8BC34A",
+    accent3: "#CDDC39",
+    accent4: "#009688",
+    accent5: "#F44336",
+    gradient: "linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%)",
+    gradientText: "linear-gradient(135deg, #1B5E20 0%, #4CAF50 100%)",
+    barBg: "rgba(76, 175, 80, .12)",
+    barFill: "linear-gradient(90deg, #2E7D32 0%, #4CAF50 100%)",
+    scrollThumb: "rgba(255,255,255,.12)",
+    toggleBg: "rgba(255,255,255,.06)",
+    pillBg: "rgba(76,175,80,.10)",
+    pillBorder: "rgba(76,175,80,.18)",
+    divider: "rgba(255,255,255,.05)",
+    tagBg: "rgba(255,255,255,.03)",
+  },
+  purple: {
+    bg: "#0F051D",
+    meshA: "rgba(147, 51, 234, .18)",
+    meshB: "rgba(79, 70, 229, .12)",
+    meshC: "rgba(192, 38, 211, .10)",
+    meshD: "rgba(124, 58, 237, .06)",
+    glass: "rgba(30, 10, 50, .65)",
+    glassHover: "rgba(45, 15, 75, .8)",
+    glassBorder: "rgba(255,255,255,.1)",
+    glassBorderHover: "rgba(255,255,255,.2)",
+    glassShadow: "0 2px 20px rgba(0,0,0,.4), 0 8px 40px rgba(147, 51, 234, .15)",
+    glassShadowHover: "0 4px 24px rgba(0,0,0,.5), 0 16px 56px rgba(147, 51, 234, .25)",
+    glassBlur: "blur(40px) saturate(1.8)",
+    navGlass: "rgba(20, 5, 40, .75)",
+    navBorder: "rgba(255,255,255,.08)",
+    navBlur: "blur(40px) saturate(2)",
+    text: "#F5F3FF",
+    textSecondary: "#DDD6FE",
+    textMuted: "#A78BFA",
+    accent: "#C084FC",
+    accentSoft: "rgba(192, 132, 252, .15)",
+    accentGlow: "rgba(192, 132, 252, .3)",
+    accent2: "#818CF8",
+    accent3: "#F472B6",
+    accent4: "#FB7185",
+    accent5: "#F87171",
+    gradient: "linear-gradient(135deg, #7C3AED 0%, #C084FC 100%)",
+    gradientText: "linear-gradient(135deg, #A78BFA 0%, #F472B6 100%)",
+    barBg: "rgba(192, 132, 252, .12)",
+    barFill: "linear-gradient(90deg, #7C3AED 0%, #C084FC 100%)",
+    scrollThumb: "rgba(255,255,255,.15)",
+    toggleBg: "rgba(255,255,255,.08)",
+    pillBg: "rgba(192,132,252,.10)",
+    pillBorder: "rgba(192,132,252,.20)",
+    divider: "rgba(255,255,255,.06)",
+    tagBg: "rgba(255,255,255,.04)",
+  },
+  steel: {
+    bg: "#1A1B1E",
+    meshA: "rgba(112, 128, 144, .15)",
+    meshB: "rgba(47, 79, 79, .10)",
+    meshC: "rgba(119, 136, 153, .08)",
+    meshD: "rgba(105, 105, 105, .05)",
+    glass: "rgba(37, 38, 43, .7)",
+    glassHover: "rgba(44, 46, 51, .85)",
+    glassBorder: "rgba(255,255,255,.08)",
+    glassBorderHover: "rgba(255,255,255,.15)",
+    glassShadow: "0 2px 20px rgba(0,0,0,.35), 0 8px 40px rgba(0,0,0,.45)",
+    glassShadowHover: "0 4px 24px rgba(0,0,0,.45), 0 16px 56px rgba(0,0,0,.65)",
+    glassBlur: "blur(40px) saturate(1.2)",
+    navGlass: "rgba(26, 27, 30, .75)",
+    navBorder: "rgba(255,255,255,.06)",
+    navBlur: "blur(40px) saturate(1.4)",
+    text: "#C1C2C5",
+    textSecondary: "#A6A7AB",
+    textMuted: "#909296",
+    accent: "#74C0FC",
+    accentSoft: "rgba(116, 192, 252, .12)",
+    accentGlow: "rgba(116, 192, 252, .22)",
+    accent2: "#63E6BE",
+    accent3: "#FFD43B",
+    accent4: "#B197FC",
+    accent5: "#FF8787",
+    gradient: "linear-gradient(135deg, #495057 0%, #ADB5BD 100%)",
+    gradientText: "linear-gradient(135deg, #CED4DA 0%, #74C0FC 100%)",
+    barBg: "rgba(116, 192, 252, .1)",
+    barFill: "linear-gradient(90deg, #495057 0%, #74C0FC 100%)",
+    scrollThumb: "rgba(255,255,255,.12)",
+    toggleBg: "rgba(255,255,255,.07)",
+    pillBg: "rgba(116,192,252,.10)",
+    pillBorder: "rgba(116,192,252,.18)",
+    divider: "rgba(255,255,255,.05)",
+    tagBg: "rgba(255,255,255,.03)",
   },
 };
 const ThemeCtx = createContext(null);
@@ -141,7 +256,8 @@ function ThemeProvider({ children }) {
     try { return localStorage.getItem("theme") || "dark"; } catch { return "dark"; }
   });
   const toggle = () => setMode(p => {
-    const n = p === "dark" ? "light" : "dark";
+    const modes = ["light", "dark", "forest", "purple", "steel"];
+    const n = modes[(modes.indexOf(p) + 1) % modes.length];
     try { localStorage.setItem("theme", n); } catch {}
     return n;
   });
@@ -335,15 +451,19 @@ function ThemeToggle() {
   return (
     <button onClick={toggle} aria-label="Toggle theme" style={{
       display: "flex", alignItems: "center", justifyContent: "center",
-      width: 40, height: 40, borderRadius: 20,
-      background: t.toggleBg, border: `1px solid ${t.glassBorder}`,
+      width: 32, height: 32, borderRadius: 16,
+      background: t.toggleBg, border: `1px solid ${t.toggleBorder || t.glassBorder}`,
       backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
       cursor: "pointer", transition: "all .35s cubic-bezier(.22,1,.36,1)",
     }}
     onMouseOver={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.background = t.accentSoft; }}
     onMouseOut={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.background = t.toggleBg; }}
     >
-      {mode === "dark" ? <Sun size={17} color="#FF9F0A" /> : <Moon size={17} color={t.accent} />}
+      {mode === "light"  && <Moon     size={15} color="#3A3A4A" />}
+      {mode === "dark"   && <Leaf     size={15} color="#4CAF50" />}
+      {mode === "forest" && <Sparkles size={15} color="#C084FC" />}
+      {mode === "purple" && <Monitor  size={15} color="#74C0FC" />}
+      {mode === "steel"  && <Sun      size={15} color="#FF9500" />}
     </button>
   );
 }
@@ -409,7 +529,8 @@ function Nav() {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <ThemeToggle />
             <button className="nav-toggle" onClick={() => setOpen(!open)} style={{
-              display: "none", background: "none", border: "none", color: t.text, cursor: "pointer", padding: 4,
+              display: "none", alignItems: "center", justifyContent: "center",
+              width: 32, height: 32, background: "none", border: "none", color: t.text, cursor: "pointer", padding: 0,
             }}>
               {open ? <X size={22} /> : <Menu size={22} />}
             </button>
@@ -495,7 +616,7 @@ function ResumePage({ onBack }) {
 
   const pdfUrl = process.env.PUBLIC_URL + "/resume.pdf";
   const shimmer = {
-    background: mode === "dark"
+    background: mode !== "light"
       ? "linear-gradient(90deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.10) 40%, rgba(255,255,255,.04) 100%)"
       : "linear-gradient(90deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.12) 40%, rgba(0,0,0,.05) 100%)",
     backgroundSize: "300% 100%",
@@ -665,7 +786,7 @@ function ResumePage({ onBack }) {
                         <>
                             {Array.from({length: numPages || 0}, (_, i) => (
                                 <div key={i} style={{
-                                    boxShadow: mode === "dark"
+                                    boxShadow: mode !== "light"
                                         ? "0 4px 32px rgba(0,0,0,.5)"
                                         : "0 4px 32px rgba(0,0,0,.15)",
                                     borderRadius: isMobile ? 8 : 12,
@@ -750,12 +871,21 @@ function Hero({ onViewResume }) {
         {/* Avatar */}
         <div style={a(0.1)}>
           <div style={{
-            width: 96, height: 96, borderRadius: "50%", margin: "0 auto 28px",
-            background: t.gradient,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 34, fontWeight: 700, color: "#fff", letterSpacing: 1,
+            width: 140, height: 140, borderRadius: "50%", margin: "0 auto 28px",
+            overflow: "hidden",
             boxShadow: `0 8px 40px ${t.accentGlow}, 0 0 0 4px ${t.glass}`,
-          }}>MG</div>
+          }}>
+            <img
+              src={process.env.PUBLIC_URL + "/Photo.png"}
+              alt="Mahaveersinh Gohil"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+              }}
+            />
+          </div>
         </div>
         <h1 key={t.mode + "-name"} style={{
           ...a(0.25), fontSize: "clamp(36px,7vw,68px)", fontWeight: 700,
