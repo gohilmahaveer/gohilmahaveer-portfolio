@@ -526,13 +526,17 @@ function Nav() {
               >{l.label}</a>
             ))}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <ThemeToggle />
             <button className="nav-toggle" onClick={() => setOpen(!open)} style={{
               display: "none", alignItems: "center", justifyContent: "center",
-              width: 32, height: 32, background: "none", border: "none", color: t.text, cursor: "pointer", padding: 0,
-            }}>
-              {open ? <X size={22} /> : <Menu size={22} />}
+              width: 32, height: 32, background: t.toggleBg, border: `1px solid ${t.toggleBorder || t.glassBorder}`, color: t.text, cursor: "pointer", padding: 0,
+              borderRadius: 16, backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", transition: "all .35s cubic-bezier(.22,1,.36,1)",
+              }}
+              onMouseOver={e => { e.currentTarget.style.transform = "scale(1.1)"; e.currentTarget.style.background = t.accentSoft; }}
+              onMouseOut={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.background = t.toggleBg; }}
+            >
+              {open ? <X size={16} /> : <Menu size={16} />}
             </button>
           </div>
         </div>
@@ -1463,7 +1467,7 @@ function GlobalStyles() {
       }
       @media (max-width: 768px) {
         .nav-desktop { display: none !important; }
-        .nav-toggle { display: block !important; }
+        .nav-toggle { display: flex !important; }
       }
     `}</style>
   );
